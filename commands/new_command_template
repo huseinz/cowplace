@@ -1,0 +1,7 @@
+//don't forget to add .js extension
+module.exports = {
+	name: '',
+	usage: '',
+	about: '',
+	execute(argv, msg){}
+}

@@ -1,4 +1,4 @@
 node_modules/
 *.swp
 *.log
-auth.json
+config.json
