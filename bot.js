@@ -25,9 +25,12 @@ client.on("message", msg => {
 
   // randomly react with a random emoji
   if (Math.floor(Math.random() * 10) > 8) {
-    const emojis = msg.guild.emojis.array();
-    for (let i = 0; i < 1; i++) {
-      var e = emojis[Math.floor(Math.random() * emojis.length)];
+    const guild = msg.guild;  
+    if (guild){
+	    var emojis = guild.emojis.array();
+    }
+    for (let i = 0; emojis && i < 1; i++) {
+      const e = emojis[Math.floor(Math.random() * emojis.length)];
       msg.react(e);
     }
   } 
@@ -44,7 +47,7 @@ client.on("message", msg => {
   const cmd_name = argv[0].slice(prefix.length);
 
   //handle special case command: list all available commands
-  if (cmd_name === 'commands'){
+  if (cmd_name === 'commands' || cmd_name === 'help'){
   	cow.say_dirty(Array.from(client.commands.keys()).join('\n'), msg.channel);
 	return;
   }
@@ -62,7 +65,7 @@ client.on("message", msg => {
       msg.reply(cmd_module.about);
     }
     // invoke module
-    else{
+    else if (cmd_module){
       cmd_module.execute(argv, msg);
     }
   } catch (error) {
