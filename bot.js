@@ -3,8 +3,10 @@ const client = new Discord.Client();
 const {prefix, token} = require("./config.json");
 
 const fs = require('fs');
-const splitargs = require("splitargs");
+//const splitargs = require("splitargs");
+const splitargs = require("split-string");
 const cow = require('./commands/cow.js');
+const util = require('./core/util.js');
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 client.commands = new Discord.Collection();
@@ -40,7 +42,8 @@ client.on("message", msg => {
 
 
   // use bash-style argument splitting
-  const argv = splitargs(msg.content);
+ // const argv = splitargs(msg.content);
+  const argv = splitargs(msg.content, {separator: ' ', quotes:'"'});
   console.log(argv);
 
   //remove prefix from command string
@@ -48,7 +51,15 @@ client.on("message", msg => {
 
   //handle special case command: list all available commands
   if (cmd_name === 'commands' || cmd_name === 'help'){
-  	cow.say_dirty(Array.from(client.commands.keys()).join('\n'), msg.channel);
+	let list = Array.from(client.commands.keys());
+	
+	for(let i = 0; i < list.length; i++){
+		list[i] = list[i].concat(": " + client.commands.get(list[i]).about);
+	}
+	list.push('!{query}: gets a random image,\nuse at your own risk');
+	list.push('\ndo \'!{command} help\' for individual\ncommand usage and options');
+	const message = list.join('\n');
+  	cow.say_dirty(message, msg.channel);
 	return;
   }
 
@@ -58,15 +69,20 @@ client.on("message", msg => {
 
     // display any help info
     if(argv.length > 1 && argv[1] === "help"){
-      msg.reply(cmd_module.about + '\n' + cmd_module.usage);
+//      msg.reply(util.codeMarkdown(cmd_module.about + '\n' + cmd_module.usage));
+      cow.say_dirty(cmd_module.about + '\n' + cmd_module.usage, msg.channel);
     }
     // display any about info
     else if(argv.length > 1 && argv[1] === "about"){
-      msg.reply(cmd_module.about);
+      msg.reply(util.codeMarkdown(cmd_module.about));
     }
     // invoke module
     else if (cmd_module){
-      cmd_module.execute(argv, msg);
+          cmd_module.execute(argv, msg);
+    }
+    else{
+    	cmd_module = client.commands.get('cat');
+	cmd_module.execute(argv, msg);
     }
   } catch (error) {
     console.error(error)

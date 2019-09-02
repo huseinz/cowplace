@@ -1,9 +1,9 @@
 const { spawn } = require("child_process");
-const util = require('../util.js');
 
 module.exports = {
     name: 'fortune',
-    usage:'',
+    usage:'!fortune',
+    about:'self explanatory',
     execute(argv, msg){
     const command = "fortune | cowsay -f bong";
     ls = spawn(command, [], { shell: true });

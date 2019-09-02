@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const cow = require('./cow.js');
-const util = require('../util.js');
+const util = require('../core/util.js');
 
 async function getWeather(day){
   let data = await fetch(
@@ -29,7 +29,7 @@ async function getWeather(day){
 
 module.exports = {
 	name: 'weather',
-	usage: util.codeMarkdown('!weather'),
+	usage: '!weather',
 	about: 'shows u the weather',
 	execute(argv, msg){
 	    let s = undefined;

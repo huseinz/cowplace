@@ -1,5 +1,3 @@
-const util = require('../util.js');
-
 async function getBotMessages(channel, filter){
 	
 	cmp = (a, b) => { return a.createdTimestamp - b.createdTimestamp; }
@@ -38,10 +36,9 @@ async function deleteBotMessages(channel, n){
 	}
 }
 
-const usage = util.codeMarkdown('usage: !purge options\nn\nall');
 module.exports = {
     name: 'purge',
-    usage,
+    usage: 'usage: !purge options\nn\nall',
     about: 'removes bot messages',
     execute(argv, msg){
     if(argv.length == 1){

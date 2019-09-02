@@ -1,5 +1,4 @@
 const cow = require('./cow.js');
-const util = require('../util.js');
 
 let civs = [
 	'AmeriKKKa',
@@ -41,7 +40,7 @@ shuffleCivs = () => {
   }
 }
 
-const usage = util.codeMarkdown('usage: !civ [option]\nlist: list all civs\nroll: get random civ\nroll all: roll civs for everyone in channel');
+const usage = 'usage: !civ [option]\nlist: list all civs\nroll: get random civ\nroll all: roll civs for everyone in channel';
 module.exports = {
 	name: 'civ',
 	usage,
@@ -55,16 +54,18 @@ module.exports = {
 		shuffleCivs(); shuffleCivs(); shuffleCivs();
 		if (argv.includes('all')){	
 			let members = msg.guild.members.filterArray(m => {return !m.user.bot});
+			let matches = [];
 			for(let i = 0; i < members.length; i++){
-				s = s.concat(`${members[i].user.username}: ${civs[i]}\n`);
+				matches.push(`${members[i].user.username}: ${civs[i]}`);
 			}
+			s = matches.join('\n');
 		}else{
 			s = civs[0];
 		}
 		cow.say_dirty(s, msg.channel);
 	}
 	 if(argv[1] === 'list'){
-		 cow.say(civs.toString(), msg.channel);
+		 cow.say(civs.join(', '), msg.channel);
 	 }
 }
 }

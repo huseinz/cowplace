@@ -1,5 +1,7 @@
 # my shit bot
 
+immune to drek
+
 to run:
 
 `npm install` probably forgot to save some packages
@@ -15,6 +17,6 @@ create a config.json file with this stuff:
 
 then
 
-`node bot.js`
+`node run dev`
 
 enjoy
