@@ -16,6 +16,7 @@ module.exports = {
 	about: 'random shitty dad joke',
 	dad,
 	execute(argv, msg){
+//		console.log(msg.channel);
 	    (async () => {
 		data = await dad();
 		msg.channel.send(data);
