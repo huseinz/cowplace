@@ -2,6 +2,16 @@
 
 const axios = require('axios');
 const random = require('random-item');
+const ddg = require('duckduckgo-images-api');
+
+async function ddg_is(q){
+	do{
+	  const results = await ddg.image_search({ query: q });
+       	  if(results !== undefined)
+	    return random(results).image;
+	}while(results === undefined);
+}
+
 module.exports = {
   name: ["cat", "dog", 'koala'],
   usage: '!dog | !cat | !koala',
@@ -28,31 +38,14 @@ module.exports = {
 	
 	//generic image search
 	else{
-	const req_url = 'https://api.qwant.com/api/search/images';
 	argv[0] = argv[0].slice(1);
 	const query = argv.join(' ');
-	const response = await axios.get(req_url, 
-		{params:{
-			count:'10',
-			'q':query,
-			't':'images',
-			'locale':'en_US',
-			'uiv': 4
-		 }
-		}
-	);
-	const result = response.data.data.result.items;
-	let urls = [];
-	for (let i = 0; i < result.length; i++){
-		let media = result[i].media;
-		if(media) urls.push(media);
+	const rv = await msg.channel.send(`🦆 is looking for \'${query}\'...`);
+	const img_url = await ddg_is(query);
+	console.log(img_url);
+//        msg.channel.send(img_url);
+	rv.edit(img_url);
 	}
-		//	console.log(urls);
-	console.log(urls.length);
-	img_url = random(urls);
-	}
-	      console.log(img_url);
-        msg.channel.send(img_url);
       } catch (error) {
 	if(error.response){
         	console.error(error.message + error.response.statusText);
