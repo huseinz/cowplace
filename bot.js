@@ -9,7 +9,7 @@ const cow = require('./commands/cow.js');
 const util = require('./core/util.js');
 
 //steam webwooks endpoint
-const steam_webhook = require('./steam.js');
+const steam_webhook = require('./core/steam.js');
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 client.commands = new Discord.Collection();

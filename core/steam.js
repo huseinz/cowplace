@@ -5,14 +5,16 @@ const mapping = {
 	"Hot Bod Rod": "196117736089321474",
 };
 
+const port = 3000;
+const emitter = require('events').EventEmitter;
+const discord_hook = new emitter();
+const db = require('./db.js');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').Server(app);
-const port = 3000;
 const helmet = require('helmet');
-const emitter = require('events').EventEmitter;
-let steam_webhook = new emitter();
 
 app.use(helmet());
 app.use(bodyParser.json());
@@ -25,14 +27,22 @@ app.use((req, res, next) => {
 	next();
 });
 
+
+let latest_turn = undefined;
 module.exports = {
-	steam_webhook,
+	discord_hook,
+	latest_turn,
 	start: (discord_client) => {
+	  
+	  db.findOne('civ6', {_id:'latest_turn'})
+	  .then(res => latest_turn = res)
+	  .catch(err => console.log(err));
+
 	  let steam_chan = discord_client.guilds.get('606156719084666943');
 	  steam_chan = steam_chan.channels.get('618229340907503667');
 
 
-	  steam_webhook.on('next_turn', (data) => {
+	  discord_hook.on('next_turn', (data) => {
 		  console.log('event');
 		  console.log(data);
 		  if(data.discord_username === "everyone"){
@@ -58,8 +68,6 @@ server.listen(port, '0.0.0.0', (err) => {
 	console.log('steam endpoint enabled :)');
 });
 app.get('/butterboys', (req, res) => {
-	console.log('get');
-//	console.log(req);
 	res.sendStatus(200);
 });
 
@@ -67,14 +75,26 @@ app.post('/butterboys', (req, res) => {
 	console.log('post');
 	console.log(req.body);
 
-	const steam_username = req.body.value2;
+	let turn = req.body;
+	const steam_username = turn.value2;
 	let discord_username = 'everyone';
-
 
 	if(steam_username in mapping){
 		discord_username = mapping[steam_username];
 	}
 
-	steam_webhook.emit('next_turn', {"steam_username":steam_username, "discord_username":discord_username});
+	discord_hook.emit('next_turn', 
+		{"steam_username":steam_username, 
+		"discord_username":discord_username});
+
 	res.sendStatus(200);
+
+	turn.timestamp = Date.now();
+	turn._id = 'latest_turn';
+	latest_turn = turn;
+
+	db_callback = res => {
+		console.log(res);
+	};
+	db.save('civ6', turn, {_id: 'latest_turn'}).then(db_callback);
 });
