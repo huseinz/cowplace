@@ -1,3 +1,10 @@
+const mapping = {
+	"Sir Flexalot": "238850504493498370",
+	"capitalism is bad fellow gamers": "546865404425928727",
+	"R8 my R8 M8": "534748953024004103",
+	"Hot Bod Rod": "196117736089321474",
+};
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -18,6 +25,26 @@ app.use((req, res, next) => {
 	next();
 });
 
+module.exports = {
+	steam_webhook,
+	start: (discord_client) => {
+	  let steam_chan = discord_client.guilds.get('606156719084666943');
+	  steam_chan = steam_chan.channels.get('618229340907503667');
+
+
+	  steam_webhook.on('next_turn', (data) => {
+		  console.log('event');
+		  console.log(data);
+		  if(data.discord_username === "everyone"){
+			steam_chan.send(`it's ${data.steam_username}'s turn. steam->discord mapping needs update`);
+		  }else{
+		  steam_chan.send(`it's <@${data.discord_username}>'s turn`);
+		}
+	  });
+
+	}
+};
+
 //pre-flight requests
 app.options('*', function(req, res) {
 	res.send(200);
@@ -35,10 +62,19 @@ app.get('/butterboys', (req, res) => {
 //	console.log(req);
 	res.sendStatus(200);
 });
+
 app.post('/butterboys', (req, res) => {
 	console.log('post');
 	console.log(req.body);
-	steam_webhook.emit('next_turn', req.body);
+
+	const steam_username = req.body.value2;
+	let discord_username = 'everyone';
+
+
+	if(steam_username in mapping){
+		discord_username = mapping[steam_username];
+	}
+
+	steam_webhook.emit('next_turn', {"steam_username":steam_username, "discord_username":discord_username});
 	res.sendStatus(200);
 });
-module.exports = server;

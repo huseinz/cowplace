@@ -9,9 +9,7 @@ const cow = require('./commands/cow.js');
 const util = require('./core/util.js');
 
 //steam webwooks endpoint
-const endpoints = require('./steam.js');
-const emitter = require('events').EventEmitter;
-let steam_webhook = new emitter();
+const steam_webhook = require('./steam.js');
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 client.commands = new Discord.Collection();
@@ -26,13 +24,7 @@ for (const file of commandFiles) {
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  let steam_chan = client.guilds.get('606156719084666943');
-	steam_chan = steam_chan.channels.get('618229340907503667');
-  steam_webhook.on('next_turn', (data) => {
-	  console.log('event');
-  	console.log(data);
-	  cow.say(data.toString(), steam_chan);
-  });
+  steam_webhook.start(client);
 });
 
 client.on("message", msg => {
