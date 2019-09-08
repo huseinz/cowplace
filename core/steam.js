@@ -9,6 +9,7 @@ const port = 3000;
 const emitter = require('events').EventEmitter;
 const discord_hook = new emitter();
 const db = require('./db.js');
+const dad = require('../commands/dad.js').dad;
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept');
 	next();
 });
@@ -47,11 +48,10 @@ module.exports = {
 	  discord_hook.on('next_turn', (data) => {
 		  console.log('event');
 		  console.log(data);
-		  if(data.discord_username === "everyone"){
-			steam_chan.send(`it's ${data.steam_username}'s turn. steam->discord mapping needs update`);
-		  }else{
 		  steam_chan.send(`it's <@${data.discord_username}>'s turn`);
-		}
+		  if(data.discord_username === data.steam_username)
+			steam_chan.send('steam username changed, steam->discord mapping needs update');
+		  dad().then(res => steam_chan.send(res));
 	  });
 	
 	turn_reminder = (fire_time) => {
@@ -60,29 +60,19 @@ module.exports = {
 		const latest_turn_timestamp = new Date(latest_turn.timestamp);
 		const elapsed_ms = fire_time - latest_turn_timestamp;
 		console.log('civ 6 turn elapsed ms: ' + elapsed_ms);
-		if(elapsed_ms > 1000 * 60 * 60){
+		const minutes = Math.floor(elapsed_ms / 1000 / 60);
+		if(minutes > 120){
 			const steam_username = latest_turn.value2;
 			let discord_username = steam_username;
 			if(steam_username in mapping){
 				discord_username = mapping[steam_username];
 			}
-			const minutes = Math.floor(elapsed_ms / 1000 / 60);
 			steam_chan.send(`Turn reminder: it has been ${minutes} minutes since <@${discord_username}>'s turn`);
 		}
 	}
-	const j = scheduler.scheduleJob('0 20 * * *', function(fire_time){
+	const j = scheduler.scheduleJob('0 20-23 * * *', function(fire_time){
 		turn_reminder(fire_time);
 	});
-	const k = scheduler.scheduleJob('0 21 * * *', function(fire_time){
-		turn_reminder(fire_time);
-	});
-	const l = scheduler.scheduleJob('0 22 * * *', function(fire_time){
-		turn_reminder(fire_time);
-	});
-	const m = scheduler.scheduleJob('0 23 * * *', function(fire_time){
-		turn_reminder(fire_time);
-	});
-
 	}
 };
 
@@ -108,7 +98,7 @@ app.post('/butterboys', (req, res) => {
 
 	let turn = req.body;
 	const steam_username = turn.value2;
-	let discord_username = 'everyone';
+	let discord_username = steam_username;
 
 	if(steam_username in mapping){
 		discord_username = mapping[steam_username];
@@ -127,5 +117,5 @@ app.post('/butterboys', (req, res) => {
 	db_callback = res => {
 		console.log(res);
 	};
-	db.save('civ6', turn, {_id: 'latest_turn'}).then(db_callback);
+	db.save('civ6', turn, {_id: 'latest_turn'}).then().catch(db_callback);
 });
