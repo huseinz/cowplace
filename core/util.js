@@ -1,4 +1,3 @@
-
 module.exports.formatTextWrap = (text, maxLineLength) => {
   const words = text.replace(/[\r\n]+/g, " ").split(" ");
   let lineLength = 0;
@@ -15,4 +14,6 @@ module.exports.formatTextWrap = (text, maxLineLength) => {
   }, "");
 };
 
-module.exports.codeMarkdown = (s) => { return '\`\`\`' + s + '\`\`\`'};
+module.exports.codeMarkdown = s => {
+  return "```" + s + "```";
+};
