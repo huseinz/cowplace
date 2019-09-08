@@ -15,6 +15,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').Server(app);
 const helmet = require('helmet');
+const scheduler = require('node-schedule');
 
 app.use(helmet());
 app.use(bodyParser.json());
@@ -28,14 +29,15 @@ app.use((req, res, next) => {
 });
 
 
-let latest_turn = undefined;
+
+let latest_turn = null;
 module.exports = {
 	discord_hook,
 	latest_turn,
 	start: (discord_client) => {
 	  
 	  db.findOne('civ6', {_id:'latest_turn'})
-	  .then(res => latest_turn = res)
+	  .then(res => {latest_turn = res;})
 	  .catch(err => console.log(err));
 
 	  let steam_chan = discord_client.guilds.get('606156719084666943');
@@ -51,6 +53,35 @@ module.exports = {
 		  steam_chan.send(`it's <@${data.discord_username}>'s turn`);
 		}
 	  });
+	
+	turn_reminder = (fire_time) => {
+		if (latest_turn === null)
+			return;
+		const latest_turn_timestamp = new Date(latest_turn.timestamp);
+		const elapsed_ms = fire_time - latest_turn_timestamp;
+		console.log('civ 6 turn elapsed ms: ' + elapsed_ms);
+		if(elapsed_ms > 1000 * 60 * 60){
+			const steam_username = latest_turn.value2;
+			let discord_username = steam_username;
+			if(steam_username in mapping){
+				discord_username = mapping[steam_username];
+			}
+			const minutes = Math.floor(elapsed_ms / 1000 / 60);
+			steam_chan.send(`Turn reminder: it has been ${minutes} minutes since <@${discord_username}>'s turn`);
+		}
+	}
+	const j = scheduler.scheduleJob('0 20 * * *', function(fire_time){
+		turn_reminder(fire_time);
+	});
+	const k = scheduler.scheduleJob('0 21 * * *', function(fire_time){
+		turn_reminder(fire_time);
+	});
+	const l = scheduler.scheduleJob('0 22 * * *', function(fire_time){
+		turn_reminder(fire_time);
+	});
+	const m = scheduler.scheduleJob('0 23 * * *', function(fire_time){
+		turn_reminder(fire_time);
+	});
 
 	}
 };
