@@ -37,7 +37,7 @@ module.exports = {
   discord_hook,
   latest_turn,
   start: discord_client => {
-    db.findOne("civ6", { _id: "latest_turn" })
+    db.findOne("civ6_latest_turn", { _id: "latest_turn" })
       .then(res => {
         latest_turn = res;
       })
@@ -49,8 +49,8 @@ module.exports = {
     discord_hook.on("next_turn", data => {
       console.log("event");
       console.log(data);
-      steam_chan.send(`it's <@${data.discord_username}>'s turn`);
-      if (data.discord_username === data.steam_username)
+      steam_chan.send(`it's <@${data.discord_id}>'s turn`);
+      if (data.discord_id === data.steam_username)
         steam_chan.send(
           "steam username changed, steam->discord mapping needs update"
         );
@@ -61,22 +61,19 @@ module.exports = {
       if (latest_turn === null) return;
       const latest_turn_timestamp = new Date(latest_turn.timestamp);
       const elapsed_ms = fire_time - latest_turn_timestamp;
-      console.log("civ 6 turn elapsed ms: " + elapsed_ms);
-      const minutes = Math.floor(elapsed_ms / 1000 / 60);
-      if (minutes > 120) {
+      const elapsed_minutes = Math.floor(elapsed_ms / 1000 / 60);
+      if (elapsed_minutes > 90) {
         const steam_username = latest_turn.value2;
-        let discord_username = steam_username;
+        let discord_id = steam_username;
         if (steam_username in mapping) {
-          discord_username = mapping[steam_username];
+          discord_id = mapping[steam_username];
         }
         steam_chan.send(
-          `Turn reminder: it has been ${minutes} minutes since <@${discord_username}>'s turn`
+          `Turn reminder: it has been ${elapsed_minutes} minutes since <@${discord_id}>'s turn`
         );
       }
     };
-    const j = scheduler.scheduleJob("0 20-23 * * *", function(fire_time) {
-      turn_reminder(fire_time);
-    });
+    const j = scheduler.scheduleJob("30 20-23 * * 1-5", fire_time => turn_reminder(fire_time));
   }
 };
 
@@ -102,27 +99,37 @@ app.post("/butterboys", (req, res) => {
 
   let turn = req.body;
   const steam_username = turn.value2;
-  let discord_username = steam_username;
+  let discord_id = steam_username;
 
   if (steam_username in mapping) {
-    discord_username = mapping[steam_username];
+    discord_id = mapping[steam_username];
   }
 
   discord_hook.emit("next_turn", {
-    steam_username: steam_username,
-    discord_username: discord_username
+    steam_username,
+    discord_id
   });
 
   res.sendStatus(200);
 
   turn.timestamp = Date.now();
-  turn._id = "latest_turn";
-  latest_turn = turn;
+  turn.discord_id = discord_id;
 
   db_callback = res => {
     console.log(res);
   };
-  db.save("civ6", turn, { _id: "latest_turn" })
-    .then()
+  // save turn to db
+  db.save("civ6_turns", turn)
+    .then((res) => {
+	  console.log(res);
+	  // update latest turn
+	  latest_turn = turn;
+	  turn._id = "latest_turn";
+	  db.save("civ6_latest_turn", turn, { _id: "latest_turn" })
+	    .then()
+	    .catch(db_callback);
+          }
+    )
     .catch(db_callback);
+
 });
