@@ -1,4 +1,5 @@
 const util = require("../core/util.js");
+require('log-timestamp');
 
 async function getBotMessages(channel, filter) {
   cmp = (a, b) => {
@@ -55,7 +56,7 @@ module.exports = {
       return;
     }
     const n = parseInt(argv[1], 10);
-    if (n !== NaN) {
+    if (!isNaN(n)) {
       deleteBotMessages(msg.channel, n);
     }
     msg.delete();

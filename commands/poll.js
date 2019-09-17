@@ -1,11 +1,12 @@
 let polls = [];
 let currentpoll = undefined;
 
+require('log-timestamp');
 const MongoClient = require("mongodb").MongoClient;
 const MONGO_URL = "mongodb://localhost:27017/cowplace";
 
 fetchPolls = () => {
-  MongoClient.connect(MONGO_URL, { useNewUrlParser: true }, (err, database) => {
+  MongoClient.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true  }, (err, database) => {
     if (err) console.log(err);
     var db = database.db();
     db.collection("polls")
@@ -18,7 +19,7 @@ fetchPolls = () => {
 };
 
 savePoll = poll => {
-  MongoClient.connect(MONGO_URL, { useNewUrlParser: true }, (err, database) => {
+  MongoClient.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }, (err, database) => {
     if (err) console.log(err);
     var db = database.db();
     db.collection("polls").save(poll);

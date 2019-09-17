@@ -1,10 +1,11 @@
+require('log-timestamp');
 const MongoClient = require("mongodb").MongoClient;
 const MONGO_URL = "mongodb://localhost:27017/cowplace";
 
 module.exports = {
   findOne: async (collection_name, query = {}) => {
     const client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true
+	    useNewUrlParser: true, useUnifiedTopology: true 
     }).catch(err => {
       console.log(err);
     });
@@ -28,7 +29,7 @@ module.exports = {
 
   findAll: async (collection_name, query = {}) => {
     const client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true
+	    useNewUrlParser: true, useUnifiedTopology: true 
     }).catch(err => {
       console.log(err);
     });
@@ -51,7 +52,7 @@ module.exports = {
   },
   save: async (collection_name, item, filter) => {
     const client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true
+	    useNewUrlParser: true, useUnifiedTopology: true 
     }).catch(err => {
       console.log(err);
     });
@@ -76,7 +77,7 @@ module.exports = {
   },
   last: async collection_name => {
     const client = await MongoClient.connect(MONGO_URL, {
-      useNewUrlParser: true
+	    useNewUrlParser: true, useUnifiedTopology: true 
     }).catch(err => {
       console.log(err);
     });

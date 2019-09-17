@@ -45,3 +45,4 @@ all_avg = async () => {
 
 //dumpdb().then().catch(err => console.log(err));
 all_avg().then().catch(err => console.log(err));
+console.log(new Date().toLocaleString());

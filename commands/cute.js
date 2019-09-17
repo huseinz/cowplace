@@ -1,5 +1,6 @@
 //author: jon
 
+require('log-timestamp');
 const axios = require("axios");
 const random = require("random-item");
 const ddg = require("duckduckgo-images-api");

@@ -1,5 +1,6 @@
 //author: jon
 
+require('log-timestamp');
 const axios = require('axios');
 const util = require('../core/util.js');
 
