@@ -4,6 +4,8 @@ let currentpoll = undefined;
 require('log-timestamp');
 const MongoClient = require("mongodb").MongoClient;
 const MONGO_URL = "mongodb://localhost:27017/cowplace";
+let guild = null;
+
 
 fetchPolls = () => {
   MongoClient.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true  }, (err, database) => {
@@ -26,6 +28,7 @@ savePoll = poll => {
   });
   fetchPolls();
 };
+
 showPoll = (poll, n) => {
   if (!poll) {
     msg.reply("no polls active");
@@ -38,56 +41,32 @@ showPoll = (poll, n) => {
   return s;
 };
 
-fetchPolls();
+prefixEmoji = (str, emoji = null) => {
+  if(!emoji){
+    let emojis = guild.emojis.array();
+    emoji = emojis[Math.floor(Math.random() * emojis.length)];
+  }
+  return {str: emoji.toString() + ' ' + str, emoji};
+}
 
 module.exports = {
   name: "poll",
   usage: "",
   about: "",
   execute(argv, msg) {
-    if (argv.length <= 1) {
+    guild = msg.guild;
+    if (argv.length <= 2 || argv[1] === "help"){
       msg.reply('usage: !poll "poll title" "choice"...');
       return;
     }
-
-    if (argv[1] === "show") {
-      fetchPolls();
-      console.log(polls);
-      msg.reply(showPoll(currentpoll, polls.length));
-      return;
-    }
-    if (cmd[0] === "!vote") {
-      if (!currentpoll) {
-        msg.reply("no polls active");
-        return;
-      }
-      if (cmd.length === 1) {
-        msg.reply("usage: !vote choice");
-        return;
-      }
-
-      let s = cmd.slice(1).join(" ");
-      for (let c of currentpoll.choices) {
-        console.log(c);
-        if (c.text === s) {
-          c.votes = c.votes + 1;
-          savePoll(currentpoll);
-          msg.reply(`${msg.author.username} voted for ${c.text}`);
-          return;
-        }
-      }
-    }
-
-    let newpoll = { title: argv[1], choices: [] };
-
-    const args = argv.slice(2);
-    for (let opt of args) {
-      newpoll.choices.push({ text: opt, votes: 0 });
-    }
-    polls.push(newpoll);
-    console.log(polls);
-    msg.reply(showPoll(currentpoll, polls.length));
-    savePoll(newpoll);
-    currentpoll = polls[polls.length - 1];
+    if (argv.length > 2){
+      const title = argv[1];
+      const options = argv.slice(2);
+      console.log(title, options);
+      
+      let message = title + '\n';
+      let result = prefixEmoji(title);
+	    msg.channel.send(result.str);
+    }    
   }
 };
