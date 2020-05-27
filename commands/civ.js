@@ -1,9 +1,10 @@
 const cow = require("./cow.js");
+const dad = require("../commands/dad.js").dad;
 
 let civs = [
   "AmeriKKKa",
   "Arabia",
-  "Australia",
+//  "Australia",
   "Aztec",
   "Brazil",
   "China",
@@ -15,11 +16,11 @@ let civs = [
   "India",
   "Indonesia",
   "Japan",
-  "Khmer",
+//  "Khmer",
   "Kongo",
   "Macedon",
   "Norway",
-  "Nubia",
+//  "Nubia",
   "Poland",
   "Persia",
   "Rome",
@@ -28,6 +29,8 @@ let civs = [
   "Spain",
   "Sumeria"
 ];
+
+
 
 shuffleCivs = () => {
   var m = civs.length,
@@ -45,10 +48,31 @@ shuffleCivs = () => {
 const usage =
   "usage: !civ [option]\nlist: list all civs\nroll: get random civ\nroll all: roll civs for everyone in channel";
 module.exports = {
-  name: "civ",
+  name: ["civ", "next"], 
   usage,
   about: "rolls for Civ VI games",
   execute(argv, msg) {
+
+    if (argv[0] === "!next"){
+
+      const players = ['zubir', 'rickdrizzles16', 'Boxman5'];
+      const person = msg.author.username;
+      const pi = players.indexOf(person);
+      if (pi === -1){
+      	cow.say_dirty("whomst??", msg.channel);
+	return;
+      }
+      const ni = (pi + 1) % players.length;
+      const next = msg.client.users.find("username", players[ni]);
+      if (next.id === undefined){
+      	cow.say_dirty("ya fucked up", msg.channel);
+        return;
+      }
+      
+      msg.channel.send(`it's <@${next.id}>'s turn`);
+      dad().then(res => msg.channel.send(res));
+      return;
+    }
     if (argv.length == 1) {
       cow.say_dirty(usage, msg.channel);
     }

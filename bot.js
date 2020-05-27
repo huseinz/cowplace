@@ -24,7 +24,7 @@ for (const file of commandFiles) {
     client.commands.set(name, cmd_module);
   }
 }
-
+//cum
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   steam_webhook.start(client);

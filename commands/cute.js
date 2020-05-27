@@ -3,13 +3,33 @@
 require('log-timestamp');
 const axios = require("axios");
 const random = require("random-item");
-const ddg = require("duckduckgo-images-api");
 
-async function ddg_is(q) {
-  do {
-    const results = await ddg.image_search({ query: q });
-    if (results !== undefined) return random(results.slice(10)).image;
-  } while (results === undefined);
+async function image_search(q) {
+  const results = await axios({
+    "method":"GET",
+    "url":"https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI",
+    "headers":{
+    "content-type":"application/octet-stream",
+    "x-rapidapi-host":"contextualwebsearch-websearch-v1.p.rapidapi.com",
+    "x-rapidapi-key":"7d7f0048afmsh4a4008b6be9ed75p11fcf1jsn75795fe917a6",
+    "useQueryString":true
+    },"params":{
+    "autoCorrect":"false",
+    "pageNumber":"1",
+    "pageSize":"10",
+    "q":q,
+    "safeSearch":"false"
+    }
+    });
+    if (results !== undefined){
+      urls = [];
+      for (var item of results.data.value){
+        if (item.url !== undefined){
+	  urls.push(item.url);
+	}
+      }
+      return random(urls);
+    }  
 }
 
 module.exports = {
@@ -53,7 +73,7 @@ module.exports = {
             loading_react = await rv.react(loading_emoji);
           }
 
-          const img_url = await ddg_is(query);
+          const img_url = await image_search(query);
           console.log(img_url);
           await rv.edit(img_url);
           loading_react.remove();
