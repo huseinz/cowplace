@@ -55,21 +55,24 @@ module.exports = {
 
     if (argv[0] === "!next"){
 
-      const players = ['zubir', 'rickdrizzles16', 'Boxman5'];
-      const person = msg.author.username;
+      const players = ['238850504493498370', '546865404425928727', '534748953024004103'];
+      const person = msg.author.id;
       const pi = players.indexOf(person);
       if (pi === -1){
       	cow.say_dirty("whomst??", msg.channel);
 	return;
       }
       const ni = (pi + 1) % players.length;
-      const next = msg.client.users.find("username", players[ni]);
-      if (next.id === undefined){
-      	cow.say_dirty("ya fucked up", msg.channel);
-        return;
-      }
+      console.log(ni);
+      console.log(msg.client.users);
+      const next = players[ni];
+      //const next = msg.client.users.find("username", players[ni]);
+//      if (next.id === undefined){
+//     	cow.say_dirty("ya fucked up", msg.channel);
+//        return;
+//      }
       
-      msg.channel.send(`it's <@${next.id}>'s turn`);
+      msg.channel.send(`it's <@${next}>'s turn`);
       dad().then(res => msg.channel.send(res));
       return;
     }

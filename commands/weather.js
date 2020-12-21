@@ -29,19 +29,18 @@ async function getWeather(day) {
   return `Orlando Weather:\nHigh    : ${high}°F\nLow     : ${low}°F\nCurrent : ${temp}°F\nPrecip  : ${precip}%\nHumidity: ${humidity}%\n${desc}`;
 }
 
+async function weather_channel(channel){
+    getWeather(0).then(weather => {
+      cow.say_dirty(weather, channel);
+    });
+}
+
 module.exports = {
   name: "weather",
   usage: "!weather",
   about: "shows u the weather",
+  weather_channel,
   execute(argv, msg) {
-    let s = undefined;
-    if (argv.length > 1 && argv[1] === "tomorrow") {
-      s = getWeather(1);
-    } else {
-      s = getWeather(0);
-    }
-    s.then(weather => {
-      cow.say_dirty(weather, msg.channel);
-    });
+    weather_channel(msg.channel).then().catch();
   }
 };

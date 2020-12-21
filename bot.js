@@ -8,6 +8,7 @@ const fs = require("fs");
 const splitargs = require("split-string");
 const cow = require("./commands/cow.js");
 const util = require("./core/util.js");
+const cron = require('node-cron');
 
 //steam webwooks endpoint
 const steam_webhook = require("./core/steam.js");
@@ -24,10 +25,16 @@ for (const file of commandFiles) {
     client.commands.set(name, cmd_module);
   }
 }
+
 //cum
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   steam_webhook.start(client);
+  cron.schedule('0 * * * *', () => {
+	  var wchannel = client.channels.get('787066247787315251');
+          var cmd_module = client.commands.get('weather');
+	  cmd_module.weather_channel(wchannel).then().catch();
+  }).start();
 });
 
 client.on("message", msg => {
@@ -94,6 +101,7 @@ client.on("message", msg => {
     console.error(error);
     msg.reply("there was an error trying to execute that command!");
   }
+
   return;
 });
 

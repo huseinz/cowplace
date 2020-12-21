@@ -20,6 +20,10 @@ const server = require("http").Server(app);
 const helmet = require("helmet");
 const scheduler = require("node-schedule");
 
+
+//debounce shitty webhook api
+global.ts_last_request = new Date();
+
 update_steam_mapping = async new_steamname => {
   try{
   let lastN = await db.lastN('civ6_turns', steam_usernames.length - 1);
@@ -76,14 +80,20 @@ module.exports = {
 
     // set up post request hook
     discord_hook.on("next_turn", data => {
+
+      var ts_elapsed = (new Date()) - global.ts_last_request;
+      global.ts_last_request = new Date();
+      if (ts_elapsed < 500) {
+      	return;
+      }
       if(data.discord_id === user_map['Sir Flexalot']){
-      	steam_chan.send(`🇧🇷it's <@${data.discord_id}>'s turn🇧🇷`);
+      	steam_chan.send(`🇳🇴it's <@${data.discord_id}>'s turn🇳🇴`);
       }
-      if(data.discord_id === user_map['capitalism is bad fellow gamers']){
-      	steam_chan.send(`🇨🇳it's <@${data.discord_id}>'s turn🇨🇳`);
+      if(data.discord_id === user_map['rolo failson']){
+      	steam_chan.send(`🇺🇸it's <@${data.discord_id}>'s turn🇺🇸`);
       }
-      if(data.discord_id === user_map['R8 my R8 M8']){
-      	steam_chan.send(`🇮🇳it's <@${data.discord_id}>'s turn🇮🇳`);
+      if(data.discord_id === user_map['Office Global']){
+      	steam_chan.send(`🇮🇷it's <@${data.discord_id}>'s turn🇮🇷`);
       }
       dad().then(res => steam_chan.send(res));
     });
@@ -101,7 +111,7 @@ module.exports = {
         );
       }
     };
-    //const j = scheduler.scheduleJob("40 20-23 * * 1-5", fire_time => turn_reminder(fire_time));
+    const j = scheduler.scheduleJob("40 20-23 * * 1-5", fire_time => turn_reminder(fire_time));
   }
 };
 
