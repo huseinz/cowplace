@@ -1,33 +1,51 @@
 const cow = require("./cow.js");
 const dad = require("../commands/dad.js").dad;
+const ObjectID = require('mongodb').ObjectID
+const SteamDiscordUser = require("../models/steam_user_map.js").SteamDiscordUser;
 
 let civs = [
   "AmeriKKKa",
   "Arabia",
-//  "Australia",
+  "Australia",
   "Aztec",
   "Brazil",
+  "Canada",
   "China",
+  "Cree",
+  "Dutch",
   "Egypt",
   "England",
   "France",
+  "Georgia",
   "Germany",
   "Greece",
+  "Hungary",
+  "Inca",
   "India",
   "Indonesia",
   "Japan",
-//  "Khmer",
+  "Khmer",
   "Kongo",
+  "Korea",
   "Macedon",
+  "Mali",
+  "Maori",
+  "Mapuche",
+  "Mongolia",
   "Norway",
-//  "Nubia",
+  "Nubia",
+  "Ottoman",
   "Poland",
   "Persia",
+  "Phoenecia",
   "Rome",
   "Russia",
+  "Scotland",
   "Scythia",
   "Spain",
-  "Sumeria"
+  "Sumeria",
+  "Sweden",
+  "Zulu"
 ];
 
 
@@ -45,6 +63,14 @@ shuffleCivs = () => {
   }
 };
 
+
+get_next_user = async msg_discord_id => {
+  var msg_user = await SteamDiscordUser.findOne({discord_id: msg_discord_id});
+  var next_user = await SteamDiscordUser.findOne({discord_id: msg_user.next});
+  return next_user;
+}
+
+
 const usage =
   "usage: !civ [option]\nlist: list all civs\nroll: get random civ\nroll all: roll civs for everyone in channel";
 module.exports = {
@@ -55,25 +81,10 @@ module.exports = {
 
     if (argv[0] === "!next"){
 
-      const players = ['238850504493498370', '546865404425928727', '534748953024004103'];
-      const person = msg.author.id;
-      const pi = players.indexOf(person);
-      if (pi === -1){
-      	cow.say_dirty("whomst??", msg.channel);
-	return;
-      }
-      const ni = (pi + 1) % players.length;
-      console.log(ni);
-      console.log(msg.client.users);
-      const next = players[ni];
-      //const next = msg.client.users.find("username", players[ni]);
-//      if (next.id === undefined){
-//     	cow.say_dirty("ya fucked up", msg.channel);
-//        return;
-//      }
-      
-      msg.channel.send(`it's <@${next}>'s turn`);
-      dad().then(res => msg.channel.send(res));
+      get_next_user(msg.author.id).then( user => {
+	 msg.channel.send(`${user.civ_icon} it's <@${user.discord_id}>'s turn ${user.civ_icon}`);
+         dad().then(res => msg.channel.send(res));
+      }); 
       return;
     }
     if (argv.length == 1) {
@@ -85,12 +96,10 @@ module.exports = {
       shuffleCivs();
       shuffleCivs();
       if (argv.includes("all")) {
-        let members = msg.guild.members.filterArray(m => {
-          return !m.user.bot;
-        });
+	let members = ['zubir', 'drek', 'nick', 'rod'];
         let matches = [];
         for (let i = 0; i < members.length; i++) {
-          matches.push(`${members[i].user.username}: ${civs[i]}`);
+          matches.push(`${members[i]}: ${civs[i]}`);
         }
         s = matches.join("\n");
       } else {

@@ -6,6 +6,10 @@ const MongoClient = require("mongodb").MongoClient;
 const MONGO_URL = "mongodb://localhost:27017/cowplace";
 let guild = null;
 
+loadPolls = (items) => {
+  polls = items;
+  console.log(polls);
+}
 
 fetchPolls = () => {
   MongoClient.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true  }, (err, database) => {
@@ -13,14 +17,12 @@ fetchPolls = () => {
     var db = database.db();
     db.collection("polls")
       .find({})
-      .toArray((err, items) => {
-        polls = items;
-      });
+      .toArray((err, items) => {loadPolls(items);});
   });
   currentpoll = polls[polls.length - 1];
 };
 
-savePoll = poll => {
+savePoll = (poll) => {
   MongoClient.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }, (err, database) => {
     if (err) console.log(err);
     var db = database.db();
@@ -29,16 +31,20 @@ savePoll = poll => {
   fetchPolls();
 };
 
-showPoll = (poll, n) => {
-  if (!poll) {
-    msg.reply("no polls active");
-    return;
+showPolls = () => {
+  var text = 'Polls';
+  for(const poll of polls){
+    let s = `\n${poll.title}\n`;
+    if(poll.choices && Symbol.iterator in Object(poll.choices)){
+      console.log(poll.choices);
+      for (let c of poll.choices) {
+        s = s.concat(`• ${c.text} : ${c.votes}\n`);
+      }
+      console.log(s);
+    }
+    text = text.concat(s);
   }
-  let s = `\n${n}. ${poll.title}\n`;
-  for (let c of poll.choices) {
-    s = s.concat(`• ${c.text} : ${c.votes}\n`);
-  }
-  return s;
+  return text;
 };
 
 prefixEmoji = (str, emoji = null) => {
@@ -55,8 +61,13 @@ module.exports = {
   about: "",
   execute(argv, msg) {
     guild = msg.guild;
-    if (argv.length <= 2 || argv[1] === "help"){
+    fetchPolls();
+    if (argv.length > 1 && argv[1] === "help"){
       msg.reply('usage: !poll "poll title" "choice"...');
+      return;
+    }
+    if (argv.length > 1 && argv[1] === "list"){
+      msg.reply(showPolls());
       return;
     }
     if (argv.length > 2){

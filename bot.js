@@ -10,6 +10,17 @@ const cow = require("./commands/cow.js");
 const util = require("./core/util.js");
 const cron = require('node-cron');
 
+
+// initialize mongoose
+var mongoose = require('mongoose');
+var mongoDB = 'mongodb://127.0.0.1/cowplace';
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+var db = mongoose.connection;
+//Bind connection to error event (to get notification of connection errors)
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+
+
 //steam webwooks endpoint
 const steam_webhook = require("./core/steam.js");
 
@@ -30,7 +41,7 @@ for (const file of commandFiles) {
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   steam_webhook.start(client);
-  cron.schedule('0 * * * *', () => {
+  cron.schedule('0 */8 * * *', () => {
 	  var wchannel = client.channels.get('787066247787315251');
           var cmd_module = client.commands.get('weather');
 	  cmd_module.weather_channel(wchannel).then().catch();
