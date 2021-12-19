@@ -7,7 +7,7 @@ dad = async function() {
     const response = await axios({
       method: "get",
       url: url,
-      headers: { Accept: "text/plain" }
+      headers: { "Accept": "text/plain", "User-Agent": "Zubir" }
     });
     return response.data;
   } catch (error) {
@@ -23,8 +23,10 @@ module.exports = {
   execute(argv, msg) {
     //		console.log(msg.channel);
     (async () => {
-      data = await dad();
-      msg.channel.send(data);
-    })();
+      try {
+          data = await dad();
+          msg.channel.send(data);
+      } catch (error) {console.log(error);}
+    })().catch();
   }
 };

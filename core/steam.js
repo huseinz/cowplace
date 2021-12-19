@@ -38,7 +38,7 @@ module.exports = {
 
       var ts_elapsed = (new Date()) - global.ts_last_request;
       global.ts_last_request = new Date();
-      if (ts_elapsed < 500) {
+      if (ts_elapsed < 1000) {
       	return;
       }
       SteamDiscordUser.findOne({steam_id: steam_id}).then(user => {

@@ -93,17 +93,18 @@ module.exports = {
     if (argv[1] === "roll") {
       let s = "";
       shuffleCivs();
+//      shuffleCivs();
       shuffleCivs();
-      shuffleCivs();
+      console.log(civs);
       if (argv.includes("all")) {
 	let members = ['zubir', 'drek', 'nick', 'rod'];
         let matches = [];
         for (let i = 0; i < members.length; i++) {
-          matches.push(`${members[i]}: ${civs[i]}`);
+          matches.push(`${members[i]}: ${civs[i+5]}`);
         }
         s = matches.join("\n");
       } else {
-        s = civs[0];
+        s = civs[5];
       }
       cow.say_dirty(s, msg.channel);
     }

@@ -9,6 +9,18 @@ const splitargs = require("split-string");
 const cow = require("./commands/cow.js");
 const util = require("./core/util.js");
 const cron = require('node-cron');
+const fuzz = require('fuzzball');
+
+censored_phrases = ['baby boo butt']
+
+censor = (msg) => {
+  for (const phrase in censored_phrases){
+    var fuzz_ratio = fuzz.partial_ratio('baby boo butt', msg.content);
+    console.log(fuzz_ratio);
+    if (fuzz_ratio > 40) { return true;}
+  }
+  return false;
+}
 
 
 // initialize mongoose
@@ -61,6 +73,12 @@ client.on("message", msg => {
     }
   }
 
+  // apply censor
+//  if (!msg.author.bot && censor(msg)){
+//    var illegal_text = msg.content;
+//    msg.reply(`you will be milked for this post: ||${illegal_text}||`);
+//    msg.delete();
+//  }
   // exit if message not a command
   if (!msg.content.startsWith(prefix) || msg.author.bot) return;
 
